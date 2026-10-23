@@ -127,10 +127,44 @@
         "Preview only: password security is not active yet.";
     });
 
-    document.getElementById("connectDrive").addEventListener("click", function () {
-      document.getElementById("fileStatus").textContent =
-        "Google Drive connection has not been configured yet.";
-    });
+
+const GOOGLE_CLIENT_ID = "PASTE_YOUR_CLIENT_ID_HERE";
+const DRIVE_SCOPE = "https://www.googleapis.com/auth/drive.file";
+
+let driveTokenClient;
+let driveAccessToken = null;
+
+document.getElementById("connectDrive").addEventListener("click", function () {
+  const status = document.getElementById("fileStatus");
+
+  if (GOOGLE_CLIENT_ID === "365586785065-3pi2tvdcc9k8n2c0tkunlh86rmhpa66v.apps.googleusercontent.com") {
+    status.textContent = "Please add your Google Client ID in the code first.";
+    return;
+  }
+
+  if (!window.google || !google.accounts || !google.accounts.oauth2) {
+    status.textContent = "Google sign-in library is still loading. Please try again.";
+    return;
+  }
+
+  driveTokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: GOOGLE_CLIENT_ID,
+    scope: DRIVE_SCOPE,
+    callback: function (response) {
+      if (response.error || !response.access_token) {
+        status.textContent = "Google Drive authorization failed. Please try again.";
+        return;
+      }
+
+      driveAccessToken = response.access_token;
+      status.textContent =
+        "Google Drive connected for this session. Encrypted file storage is not active yet.";
+    }
+  });
+
+  driveTokenClient.requestAccessToken();
+});
+
 
     document.getElementById("lockButton").addEventListener("click", function () {
       vaultCard.classList.add("hidden");
