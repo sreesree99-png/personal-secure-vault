@@ -4,11 +4,140 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101827">
   <title>Personal Secure Vault</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f3f6fb;
+      color: #172033;
+    }
+    header {
+      background: #101827;
+      color: white;
+      padding: 20px;
+    }
+    header h1 { margin: 0; font-size: 23px; }
+    header p { margin: 8px 0 0; color: #c5cede; }
+    main {
+      max-width: 850px;
+      margin: 30px auto;
+      padding: 0 16px;
+    }
+    .card {
+      background: white;
+      padding: 24px;
+      border-radius: 16px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 20px #18243a0c;
+    }
+    h2 { margin-top: 0; font-size: 20px; }
+    input, button {
+      width: 100%;
+      padding: 13px;
+      margin-top: 10px;
+      border-radius: 9px;
+      font-size: 15px;
+    }
+    input { border: 1px solid #cbd5e1; }
+    button {
+      border: 0;
+      background: #245eea;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button.secondary {
+      background: #e8eefc;
+      color: #2049a4;
+    }
+    button:disabled { opacity: .6; cursor: not-allowed; }
+    .note { color: #64748b; font-size: 13px; line-height: 1.6; }
+    .status { margin-top: 14px; font-size: 14px; line-height: 1.5; }
+    .hidden { display: none; }
+    footer { text-align: center; padding: 20px; color: #64748b; font-size: 12px; }
+  </style>
 </head>
 <body>
-  <h1>Personal Secure Vault</h1>
-  <p>Your website hosting is working.</p>
-  <p>The encrypted vault application will be added next.</p>
+  <header>
+    <h1>🔐 Personal Secure Vault</h1>
+    <p>Your personal space for securely storing files</p>
+  </header>
+
+  <main>
+    <section class="card" id="unlockCard">
+      <h2>Unlock your vault</h2>
+      <p>Use your separate vault password to unlock your private space.</p>
+      <form id="unlockForm">
+        <input id="masterPassword" type="password"
+          placeholder="Enter master password"
+          autocomplete="current-password" required>
+        <button type="submit">Unlock Vault</button>
+      </form>
+      <p class="note">
+        Setup preview only. Real password verification and encryption
+        have not been implemented yet. Do not enter a real password.
+      </p>
+      <div class="status" id="unlockStatus" role="status"></div>
+    </section>
+
+    <section class="card hidden" id="vaultCard">
+      <h2>My Secure Files</h2>
+      <p id="welcomeText">Vault interface preview</p>
+      <button type="button" id="connectDrive">Connect Google Drive</button>
+      <button type="button" class="secondary" id="uploadButton" disabled>
+        Upload a file
+      </button>
+      <input type="file" id="filePicker" class="hidden">
+      <p class="status" id="fileStatus" role="status"></p>
+      <button type="button" class="secondary" id="lockButton">Lock Preview</button>
+      <p class="note">
+        Drive connection, encrypted upload, download and file listing
+        are not active yet.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>Privacy first</h2>
+      <p>Files will be encrypted in your browser before being uploaded.</p>
+      <p class="note">
+        This page is currently only a visual preview, not a secure vault.
+        Do not upload confidential files until the security features
+        have been implemented and tested.
+      </p>
+    </section>
+  </main>
+
+  <footer>Personal Secure Vault · Browser-based application</footer>
+
+  <script>
+    const unlockForm = document.getElementById("unlockForm");
+    const passwordInput = document.getElementById("masterPassword");
+    const unlockStatus = document.getElementById("unlockStatus");
+    const unlockCard = document.getElementById("unlockCard");
+    const vaultCard = document.getElementById("vaultCard");
+
+    // This is only a UI preview. It does not authenticate a password.
+    unlockForm.addEventListener("submit", function (event) {
+      event.preventDefault();
+      passwordInput.value = "";
+      unlockStatus.textContent =
+        "Preview only: password security is not active yet.";
+    });
+
+    document.getElementById("connectDrive").addEventListener("click", function () {
+      document.getElementById("fileStatus").textContent =
+        "Google Drive connection has not been configured yet.";
+    });
+
+    document.getElementById("lockButton").addEventListener("click", function () {
+      vaultCard.classList.add("hidden");
+      unlockCard.classList.remove("hidden");
+      passwordInput.value = "";
+      unlockStatus.textContent = "Preview locked.";
+    });
+  </script>
 </body>
 </html>
