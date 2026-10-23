@@ -138,10 +138,10 @@ let driveAccessToken = null;
 document.getElementById("connectDrive").addEventListener("click", function () {
   const status = document.getElementById("fileStatus");
 
-  if (GOOGLE_CLIENT_ID === "365586785065-3pi2tvdcc9k8n2c0tkunlh86rmhpa66v.apps.googleusercontent.com") {
-    status.textContent = "Please add your Google Client ID in the code first.";
-    return;
-  }
+if (GOOGLE_CLIENT_ID === "PASTE_YOUR_CLIENT_ID_HERE") {
+  status.textContent = "Please add your Google Client ID in the code first.";
+  return;
+}
 
   if (!window.google || !google.accounts || !google.accounts.oauth2) {
     status.textContent = "Google sign-in library is still loading. Please try again.";
