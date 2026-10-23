@@ -119,13 +119,14 @@
     const unlockCard = document.getElementById("unlockCard");
     const vaultCard = document.getElementById("vaultCard");
 
-    // This is only a UI preview. It does not authenticate a password.
-    unlockForm.addEventListener("submit", function (event) {
-      event.preventDefault();
-      passwordInput.value = "";
-      unlockStatus.textContent =
-        "Preview only: password security is not active yet.";
-    });
+    // Temporary preview only — not real password protection.
+unlockForm.addEventListener("submit", function (event) {
+  event.preventDefault();
+  passwordInput.value = "";
+  unlockStatus.textContent = "Preview mode: vault features are not secured.";
+  unlockCard.classList.add("hidden");
+  vaultCard.classList.remove("hidden");
+});
 
 
 const GOOGLE_CLIENT_ID = "PASTE_YOUR_CLIENT_ID_HERE";
