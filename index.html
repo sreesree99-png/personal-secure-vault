@@ -1,178 +1,415 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#101827">
-  <title>Personal Secure Vault</title>
-  <script src="https://accounts.google.com/gsi/client"></script>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f3f6fb;
-      color: #172033;
-    }
-    header {
-      background: #101827;
-      color: white;
-      padding: 20px;
-    }
-    header h1 { margin: 0; font-size: 23px; }
-    header p { margin: 8px 0 0; color: #c5cede; }
-    main {
-      max-width: 850px;
-      margin: 30px auto;
-      padding: 0 16px;
-    }
-    .card {
-      background: white;
-      padding: 24px;
-      border-radius: 16px;
-      margin-bottom: 20px;
-      box-shadow: 0 4px 20px #18243a0c;
-    }
-    h2 { margin-top: 0; font-size: 20px; }
-    input, button {
-      width: 100%;
-      padding: 13px;
-      margin-top: 10px;
-      border-radius: 9px;
-      font-size: 15px;
-    }
-    input { border: 1px solid #cbd5e1; }
-    button {
-      border: 0;
-      background: #245eea;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    button.secondary {
-      background: #e8eefc;
-      color: #2049a4;
-    }
-    button:disabled { opacity: .6; cursor: not-allowed; }
-    .note { color: #64748b; font-size: 13px; line-height: 1.6; }
-    .status { margin-top: 14px; font-size: 14px; line-height: 1.5; }
-    .hidden { display: none; }
-    footer { text-align: center; padding: 20px; color: #64748b; font-size: 12px; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#101827">
+<title>Personal Secure Vault</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f3f6fb;color:#172033}
+header{background:#101827;color:white;padding:22px}
+header h1{margin:0;font-size:23px}
+header p{color:#c5cede;margin-bottom:0}
+main{max-width:760px;margin:25px auto;padding:0 15px}
+.card{background:white;border-radius:15px;padding:22px;margin-bottom:18px;box-shadow:0 4px 18px #1720330c}
+h2{margin-top:0;font-size:20px}
+input,button{width:100%;padding:13px;margin-top:10px;border-radius:9px;font-size:15px}
+input{border:1px solid #cbd5e1}
+button{border:0;background:#245eea;color:white;font-weight:bold;cursor:pointer}
+button.secondary{background:#e8eefc;color:#2049a4}
+button:disabled{opacity:.55;cursor:not-allowed}
+.note{color:#64748b;font-size:13px;line-height:1.6}
+.status{font-size:14px;line-height:1.5;overflow-wrap:anywhere}
+.hidden{display:none}
+.warning{background:#fff7df;padding:12px;border-radius:9px;color:#754c00;font-size:13px;line-height:1.5}
+.success{color:#187343}
+footer{text-align:center;padding:20px;color:#64748b;font-size:12px}
+</style>
 </head>
 <body>
-  <header>
-    <h1>🔐 Personal Secure Vault</h1>
-    <p>Your personal space for securely storing files</p>
-  </header>
+<header>
+  <h1>🔐 Personal Secure Vault</h1>
+  <p>Your files, encrypted in your browser</p>
+</header>
 
-  <main>
-    <section class="card" id="unlockCard">
-      <h2>Unlock your vault</h2>
-      <p>Use your separate vault password to unlock your private space.</p>
-      <form id="unlockForm">
-        <input id="masterPassword" type="password"
-          placeholder="Enter master password"
-          autocomplete="current-password" required>
-        <button type="submit">Unlock Vault</button>
-      </form>
-      <p class="note">
-        Setup preview only. Real password verification and encryption
-        have not been implemented yet. Do not enter a real password.
-      </p>
-      <div class="status" id="unlockStatus" role="status"></div>
-    </section>
+<main>
+  <section class="card" id="setupCard">
+    <h2>Create your vault</h2>
+    <p>Create a strong master password and a separate recovery key.</p>
+    <form id="setupForm">
+      <input id="newPassword" type="password" minlength="12"
+        autocomplete="new-password" placeholder="Master password (12+ characters)" required>
+      <input id="confirmPassword" type="password" minlength="12"
+        autocomplete="new-password" placeholder="Confirm master password" required>
+      <button type="submit">Create Vault</button>
+    </form>
+    <p class="note">Use a unique password you don't use on other websites.</p>
+  </section>
 
-    <section class="card hidden" id="vaultCard">
-      <h2>My Secure Files</h2>
-      <p id="welcomeText">Vault interface preview</p>
-      <button type="button" id="connectDrive">Connect Google Drive</button>
-      <button type="button" class="secondary" id="uploadButton" disabled>
-        Upload a file
-      </button>
-      <input type="file" id="filePicker" class="hidden">
-      <p class="status" id="fileStatus" role="status"></p>
-      <button type="button" class="secondary" id="lockButton">Lock Preview</button>
-      <p class="note">
-        Drive connection, encrypted upload, download and file listing
-        are not active yet.
-      </p>
-    </section>
+  <section class="card hidden" id="recoveryCard">
+    <h2>Save your recovery key</h2>
+    <p>Your recovery key can restore access if you forget your master password.</p>
+    <div class="warning">
+      Save this key offline in a safe place. Anyone who has the key and the vault
+      metadata may be able to access your encrypted files. We cannot recover a
+      lost key for you.
+    </div>
+    <input id="recoveryDisplay" readonly aria-label="Recovery key">
+    <button id="downloadRecovery">Download recovery key</button>
+    <label style="display:block;margin-top:16px">
+      <input type="checkbox" id="savedRecovery" style="width:auto">
+      I have saved my recovery key somewhere safe.
+    </label>
+    <button id="finishSetup" disabled>Continue to Vault</button>
+  </section>
 
-    <section class="card">
-      <h2>Privacy first</h2>
-      <p>Files will be encrypted in your browser before being uploaded.</p>
-      <p class="note">
-        This page is currently only a visual preview, not a secure vault.
-        Do not upload confidential files until the security features
-        have been implemented and tested.
-      </p>
-    </section>
-  </main>
+  <section class="card hidden" id="unlockCard">
+    <h2>Unlock your vault</h2>
+    <form id="unlockForm">
+      <input id="masterPassword" type="password"
+        autocomplete="current-password" placeholder="Master password" required>
+      <button type="submit">Unlock with Password</button>
+    </form>
+    <hr style="border:0;border-top:1px solid #e2e8f0;margin:22px 0">
+    <h2>Recover access</h2>
+    <form id="recoverForm">
+      <input id="recoveryInput" placeholder="Paste your recovery key" required>
+      <input id="recoveryNewPassword" type="password" minlength="12"
+        autocomplete="new-password" placeholder="Choose a new master password" required>
+      <button type="submit" class="secondary">Recover and Change Password</button>
+    </form>
+    <p class="note">Repeated wrong passwords will not erase your vault, but they cannot unlock it.</p>
+  </section>
 
-  <footer>Personal Secure Vault · Browser-based application</footer>
+  <section class="card hidden" id="vaultCard">
+    <h2>My Secure Files</h2>
+    <p class="success">Vault unlocked in this browser session.</p>
+    <p class="note">Select a file to encrypt it locally, or open a vault file to decrypt it.</p>
 
-  <script>
-    const unlockForm = document.getElementById("unlockForm");
-    const passwordInput = document.getElementById("masterPassword");
-    const unlockStatus = document.getElementById("unlockStatus");
-    const unlockCard = document.getElementById("unlockCard");
-    const vaultCard = document.getElementById("vaultCard");
+    <label for="fileToEncrypt">File to encrypt</label>
+    <input type="file" id="fileToEncrypt">
+    <button id="encryptButton">Encrypt and Download</button>
 
-    // Temporary preview only — not real password protection.
-unlockForm.addEventListener("submit", function (event) {
-  event.preventDefault();
-  passwordInput.value = "";
-  unlockStatus.textContent = "Preview mode: vault features are not secured.";
-  unlockCard.classList.add("hidden");
-  vaultCard.classList.remove("hidden");
-});
+    <hr style="border:0;border-top:1px solid #e2e8f0;margin:22px 0">
 
+    <label for="fileToDecrypt">Encrypted .vault file to open</label>
+    <input type="file" id="fileToDecrypt" accept=".vault,application/json">
+    <button id="decryptButton" class="secondary">Decrypt and Download Original</button>
 
-const GOOGLE_CLIENT_ID = "365586785065-3pi2tvdcc9k8n2c0tkunlh86rmhpa66v.apps.googleusercontent.com";
-const DRIVE_SCOPE = "https://www.googleapis.com/auth/drive.file";
+    <p class="status" id="fileStatus" role="status"></p>
+    <button id="lockButton" class="secondary">Lock Vault</button>
+    <p class="note">This prototype downloads encrypted files to your device. Google Drive sync is not implemented yet.</p>
+  </section>
 
-let driveTokenClient;
-let driveAccessToken = null;
+  <section class="card">
+    <h2>Security status</h2>
+    <p class="note">
+      This prototype uses browser Web Crypto, AES-256-GCM, a password-derived
+      key, and a separate recovery key. Vault metadata is stored in this
+      browser's local storage. It is not yet synchronized between devices.
+      Do not use this prototype as the only copy of important documents.
+    </p>
+  </section>
+</main>
+<footer>Personal Secure Vault · Local encryption prototype</footer>
 
-document.getElementById("connectDrive").addEventListener("click", function () {
-  const status = document.getElementById("fileStatus");
+<script>
+"use strict";
 
-if (GOOGLE_CLIENT_ID === "PASTE_YOUR_CLIENT_ID_HERE") {
-  status.textContent = "Please add your Google Client ID in the code first.";
-  return;
+const $ = id => document.getElementById(id);
+const DB_KEY = "personalSecureVaultMetadataV1";
+const IDLE_MS = 10 * 60 * 1000;
+
+let vaultKey = null;
+let idleTimer = null;
+let recoveryKeyForSetup = null;
+
+function show(id) { $(id).classList.remove("hidden"); }
+function hide(id) { $(id).classList.add("hidden"); }
+function status(message) { $("fileStatus").textContent = message; }
+
+function bytesToB64(bytes) {
+  let s = "";
+  for (const b of bytes) s += String.fromCharCode(b);
+  return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+}
+function b64ToBytes(value) {
+  const s = value.replace(/-/g, "+").replace(/_/g, "/");
+  const padded = s + "=".repeat((4 - s.length % 4) % 4);
+  return Uint8Array.from(atob(padded), c => c.charCodeAt(0));
+}
+function randomBytes(length) {
+  return crypto.getRandomValues(new Uint8Array(length));
+}
+function randomId() {
+  return bytesToB64(randomBytes(18));
+}
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 30000);
+}
+function getMetadata() {
+  const raw = localStorage.getItem(DB_KEY);
+  return raw ? JSON.parse(raw) : null;
+}
+function saveMetadata(meta) {
+  localStorage.setItem(DB_KEY, JSON.stringify(meta));
+}
+async function derivePasswordKey(password, salt) {
+  const material = await crypto.subtle.importKey(
+    "raw", new TextEncoder().encode(password), "PBKDF2", false, ["deriveKey"]
+  );
+  return crypto.subtle.deriveKey(
+    { name: "PBKDF2", salt, iterations: 600000, hash: "SHA-256" },
+    material,
+    { name: "AES-GCM", length: 256 },
+    false,
+    ["encrypt", "decrypt"]
+  );
+}
+async function importVaultKey(raw, extractable) {
+  return crypto.subtle.importKey(
+    "raw", raw, { name: "AES-GCM" }, extractable, ["encrypt", "decrypt"]
+  );
+}
+async function wrapBytes(key, rawBytes) {
+  const iv = randomBytes(12);
+  const ciphertext = await crypto.subtle.encrypt(
+    { name: "AES-GCM", iv }, key, rawBytes
+  );
+  return { iv: bytesToB64(iv), data: bytesToB64(new Uint8Array(ciphertext)) };
+}
+async function unwrapBytes(key, wrapped) {
+  const clear = await crypto.subtle.decrypt(
+    { name: "AES-GCM", iv: b64ToBytes(wrapped.iv) },
+    key, b64ToBytes(wrapped.data)
+  );
+  return new Uint8Array(clear);
+}
+async function createVault(password) {
+  const salt = randomBytes(16);
+  const rawVaultKey = randomBytes(32);
+  const recoveryRaw = randomBytes(32);
+  const passwordKey = await derivePasswordKey(password, salt);
+  const recoveryAesKey = await crypto.subtle.importKey(
+    "raw", recoveryRaw, { name: "AES-GCM" }, false, ["encrypt", "decrypt"]
+  );
+  const passwordWrapped = await wrapBytes(passwordKey, rawVaultKey);
+  const recoveryWrapped = await wrapBytes(recoveryAesKey, rawVaultKey);
+  const meta = {
+    version: 1,
+    algorithm: "AES-256-GCM",
+    kdf: "PBKDF2-SHA-256",
+    iterations: 600000,
+    salt: bytesToB64(salt),
+    passwordWrapped,
+    recoveryWrapped,
+    created: new Date().toISOString()
+  };
+  saveMetadata(meta);
+  vaultKey = await importVaultKey(rawVaultKey, false);
+  recoveryKeyForSetup = bytesToB64(recoveryRaw);
+  return recoveryKeyForSetup;
+}
+async function unlockWithPassword(password) {
+  const meta = getMetadata();
+  if (!meta) throw new Error("No vault setup was found in this browser.");
+  const key = await derivePasswordKey(password, b64ToBytes(meta.salt));
+  const raw = await unwrapBytes(key, meta.passwordWrapped);
+  vaultKey = await importVaultKey(raw, false);
+}
+async function recoverWithKey(recoveryText, newPassword) {
+  const meta = getMetadata();
+  if (!meta) throw new Error("No vault setup was found in this browser.");
+  const recoveryRaw = b64ToBytes(recoveryText.trim());
+  if (recoveryRaw.length !== 32) throw new Error("Recovery key format is invalid.");
+  const recoveryAesKey = await crypto.subtle.importKey(
+    "raw", recoveryRaw, { name: "AES-GCM" }, false, ["decrypt"]
+  );
+  const rawVaultKey = await unwrapBytes(recoveryAesKey, meta.recoveryWrapped);
+  const salt = randomBytes(16);
+  const newPasswordKey = await derivePasswordKey(newPassword, salt);
+  meta.salt = bytesToB64(salt);
+  meta.passwordWrapped = await wrapBytes(newPasswordKey, rawVaultKey);
+  saveMetadata(meta);
+  vaultKey = await importVaultKey(rawVaultKey, false);
+}
+function startIdleTimer() {
+  clearTimeout(idleTimer);
+  idleTimer = setTimeout(lockVault, IDLE_MS);
+}
+function touchActivity() {
+  if (vaultKey) startIdleTimer();
+}
+function lockVault() {
+  vaultKey = null;
+  clearTimeout(idleTimer);
+  hide("vaultCard");
+  show("unlockCard");
+  $("masterPassword").value = "";
+  $("recoveryInput").value = "";
+  $("recoveryNewPassword").value = "";
+  status("Vault locked.");
+}
+function enterVault() {
+  hide("setupCard"); hide("recoveryCard"); hide("unlockCard"); show("vaultCard");
+  startIdleTimer();
+  status("Ready. Encryption happens locally in your browser.");
+}
+function checkCrypto() {
+  if (!window.crypto || !crypto.subtle || !window.isSecureContext) {
+    throw new Error("Secure browser encryption is unavailable. Open this site using HTTPS in a supported browser.");
+  }
 }
 
-  if (!window.google || !google.accounts || !google.accounts.oauth2) {
-    status.textContent = "Google sign-in library is still loading. Please try again.";
-    return;
+$("setupForm").addEventListener("submit", async event => {
+  event.preventDefault();
+  try {
+    checkCrypto();
+    if (getMetadata()) throw new Error("A vault already exists in this browser. Use the unlock or recovery form.");
+    const password = $("newPassword").value;
+    if (password !== $("confirmPassword").value) throw new Error("Passwords do not match.");
+    if (password.length < 12) throw new Error("Use at least 12 characters.");
+    $("newPassword").value = "";
+    $("confirmPassword").value = "";
+    const recovery = await createVault(password);
+    $("recoveryDisplay").value = recovery;
+    hide("setupCard"); show("recoveryCard");
+  } catch (err) {
+    alert(err.message || "Vault setup failed.");
   }
-
-  driveTokenClient = google.accounts.oauth2.initTokenClient({
-    client_id: GOOGLE_CLIENT_ID,
-    scope: DRIVE_SCOPE,
-    callback: function (response) {
-      if (response.error || !response.access_token) {
-        status.textContent = "Google Drive authorization failed. Please try again.";
-        return;
-      }
-
-      driveAccessToken = response.access_token;
-      status.textContent =
-        "Google Drive connected for this session. Encrypted file storage is not active yet.";
-    }
-  });
-
-  driveTokenClient.requestAccessToken();
 });
 
+$("downloadRecovery").addEventListener("click", () => {
+  if (!recoveryKeyForSetup) return;
+  const content = "Personal Secure Vault recovery key\n\n" +
+    recoveryKeyForSetup + "\n\nKeep this key offline and private.\n";
+  downloadBlob(new Blob([content], { type: "text/plain;charset=utf-8" }),
+    "Personal-Secure-Vault-Recovery-Key.txt");
+});
+$("savedRecovery").addEventListener("change", () => {
+  $("finishSetup").disabled = !$("savedRecovery").checked;
+});
+$("finishSetup").addEventListener("click", () => {
+  if (!$("savedRecovery").checked || !vaultKey) return;
+  recoveryKeyForSetup = null;
+  enterVault();
+});
 
-    document.getElementById("lockButton").addEventListener("click", function () {
-      vaultCard.classList.add("hidden");
-      unlockCard.classList.remove("hidden");
-      passwordInput.value = "";
-      unlockStatus.textContent = "Preview locked.";
-    });
-  </script>
+$("unlockForm").addEventListener("submit", async event => {
+  event.preventDefault();
+  try {
+    checkCrypto();
+    await unlockWithPassword($("masterPassword").value);
+    $("masterPassword").value = "";
+    enterVault();
+  } catch (err) {
+    $("masterPassword").value = "";
+    alert("Could not unlock: " + (err.message || "Incorrect password."));
+  }
+});
+$("recoverForm").addEventListener("submit", async event => {
+  event.preventDefault();
+  try {
+    checkCrypto();
+    const newPassword = $("recoveryNewPassword").value;
+    if (newPassword.length < 12) throw new Error("New password must have at least 12 characters.");
+    await recoverWithKey($("recoveryInput").value, newPassword);
+    $("recoveryInput").value = "";
+    $("recoveryNewPassword").value = "";
+    alert("Recovery succeeded. Your new password is set.");
+    enterVault();
+  } catch (err) {
+    $("recoveryInput").value = "";
+    alert("Recovery failed: " + (err.message || "Check your recovery key."));
+  }
+});
+
+$("encryptButton").addEventListener("click", async () => {
+  try {
+    if (!vaultKey) throw new Error("Unlock the vault first.");
+    const file = $("fileToEncrypt").files[0];
+    if (!file) throw new Error("Choose a file first.");
+    status("Encrypting locally…");
+    const plaintext = await file.arrayBuffer();
+    const iv = randomBytes(12);
+    const ciphertext = await crypto.subtle.encrypt(
+      { name: "AES-GCM", iv }, vaultKey, plaintext
+    );
+    const payload = {
+      format: "personal-secure-vault-file",
+      version: 1,
+      algorithm: "AES-256-GCM",
+      filename: file.name,
+      mimeType: file.type || "application/octet-stream",
+      iv: bytesToB64(iv),
+      ciphertext: bytesToB64(new Uint8Array(ciphertext))
+    };
+    const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
+    downloadBlob(blob, file.name + ".vault");
+    status("Encrypted file downloaded. Keep the original until you have verified the encrypted copy.");
+  } catch (err) {
+    status(err.message || "Encryption failed.");
+  }
+});
+
+$("decryptButton").addEventListener("click", async () => {
+  try {
+    if (!vaultKey) throw new Error("Unlock the vault first.");
+    const file = $("fileToDecrypt").files[0];
+    if (!file) throw new Error("Choose a .vault file first.");
+    status("Decrypting locally…");
+    const payload = JSON.parse(await file.text());
+    if (payload.format !== "personal-secure-vault-file" ||
+        payload.version !== 1 || payload.algorithm !== "AES-256-GCM") {
+      throw new Error("This is not a supported vault file.");
+    }
+    const clear = await crypto.subtle.decrypt(
+      { name: "AES-GCM", iv: b64ToBytes(payload.iv) },
+      vaultKey, b64ToBytes(payload.ciphertext)
+    );
+    downloadBlob(new Blob([clear], {
+      type: payload.mimeType || "application/octet-stream"
+    }), payload.filename || "decrypted-file");
+    status("Decrypted file downloaded.");
+  } catch (err) {
+    status("Could not decrypt: " + (err.message || "Wrong key or damaged file."));
+  }
+});
+
+$("lockButton").addEventListener("click", lockVault);
+["pointerdown","keydown","touchstart","mousemove"].forEach(eventName => {
+  document.addEventListener(eventName, touchActivity, { passive: true });
+});
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden && vaultKey) {
+    // Start a fresh 10-minute countdown while the tab is hidden.
+    startIdleTimer();
+  }
+});
+
+try {
+  checkCrypto();
+  if (getMetadata()) {
+    hide("setupCard");
+    show("unlockCard");
+  } else {
+    show("setupCard");
+    hide("unlockCard");
+  }
+} catch (err) {
+  hide("setupCard");
+  show("unlockCard");
+  alert(err.message);
+}
+</script>
 </body>
 </html>
